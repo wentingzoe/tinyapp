@@ -8,25 +8,19 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a> 
-      </div>
-     
-   
-    
-    <% if(!username) { %>
 
-          <form class="d-grid gap-2 d-md-flex justify-content-md-end" action="/login" method="POST"> 
-          <input class="form-control" type="text" name="username" placeholder="username" >
-          <button class="btn btn-outline-warning" type="submit" value="submit">Login</button> 
+        <% if(!user) { %>
+        <a class="nav-item nav-link" href="/login"> Login</a> 
+        <a class="nav-item nav-link" href="/register"> Register </a>   
+        
+       <% } else {%> 
+          <form class="form-inline" action="/logout" method="POST"> 
+            <a class="nav-item nav-link" href="">Hi: <%= user %> </a>
+            <button type="button" class="btn btn-secondary" value="submit">Logout</button>   
           </form>
-     
-     <% } else {%> 
-      <form class="d-grid gap-2 d-md-flex justify-content-md-end" action="/logout" method="POST"> 
-        <p>Logged In as: TingApp User!</p>
-         <button type="submit" value="submit">Logout</button>   
-       </form>
-    
+         <% console.log("logout issue") %>
        <% } %>
-
+      </div>
 
     </div>
   </nav>
