@@ -8,18 +8,19 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a> 
-
+        
         <% if(!user) { %>
         <a class="nav-item nav-link" href="/login"> Login</a> 
         <a class="nav-item nav-link" href="/register"> Register </a>   
-        
-       <% } else {%> 
-          <form class="form-inline" action="/logout" method="POST"> 
-            <a class="nav-item nav-link" href="">Hi: <%= user %> </a>
-            <button type="button" class="btn btn-secondary" value="submit">Logout</button>   
-          </form>
-         <% console.log("logout issue") %>
-       <% } %>
+          
+        <% } else {%> 
+            <form class="form-inline" action="/logout" method="POST"> 
+              <a class="nav-item nav-link" href=""> ID: <%= user %> </a>
+              <button type="button" class="btn btn-secondary" value="submit">Logout</button>   
+            </form>
+          <% console.log("logout issue") %>
+        <% } %>
+     
       </div>
 
     </div>
