@@ -4,6 +4,7 @@ const PORT = 8080; // default port 8080
 const bodyParser = require('body-parser');
 //const cookieSession = require('cookie-session')
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 //*********************** USE **************************//
 // app.use(
 //   cookieSession({
@@ -39,13 +40,6 @@ const findUserByEmail = (email) => {
 	}
 	return false;
 };
-const authenticateUser = (email, password) => {
-	const user = findUserByEmail(email);
-	if (user && user.password === password) {
-		return user.id;
-	}
-	return false;
-};
 function urlsForUser(id, urlDatabase) {
 	let result = {};
 	for (key in urlDatabase) {
@@ -73,19 +67,19 @@ const users = {
 	aJ48lW: {
 		id: 'aJ48lW',
 		email: 'really.kent.cook@kitchen.com',
-		password: '1234'
+		password: bcrypt.hashSync('1234',10)
 	},
 	'1dc937ec': {
 		id: '1dc937ec',
 		email: 'good.philamignon@steak.com',
-		password: 'meatlover'
+		password: bcrypt.hashSync('meatlover',10)
 	}
 };
 
 //********************** Get ***************************//
 
 app.get('/', (req, res) => {
-	res.redirect('/register');
+	res.redirect('/login');
 });
 app.get('/urls.json', (req, res) => {
 	res.json(urlDatabase);
@@ -166,13 +160,24 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
-	const checkUserId = authenticateUser(email, password);
-	if (checkUserId) {
-		res.cookie('user_id', checkUserId);
+	const user = findUserByEmail(email);
+	if(!email || !password){
+    return res.status(400).send('email and password cannot be blank');
+  }
+  if (!user) {
+    return res.status(400).send('no user with that email found')
+  }
+	
+	
+	bcrypt.compare(password, user.password, (err, success) => {
+    if(!success){
+      return res.status(400).send('password does not match')
+    }
+    //req.session.userId = user.id;
+		res.cookie('user_id', user.id);
 		res.redirect('/urls');
-	} else {
-		res.status(401).send('Wrong credentials! Please check your email or password');
-	}
+  })
+
 });
 //********************* Register **************************//
 app.get('/register', (req, res) => {
@@ -190,11 +195,16 @@ app.post('/register', (req, res) => {
 	const password = req.body.password;
 	const user = findUserByEmail(email);
 	if (!user) {
-		const userId = addNewUser(email, password);
-		res.cookie('user_id', userId);
-		res.redirect('/urls');
+		bcrypt.genSalt(10, (err, salt) => {
+			bcrypt.hash(password, salt, (err, hash) => {
+				const userId = addNewUser(email, hash);
+				res.cookie('user_id', userId);
+				res.redirect('/');
+			});
+		});
+
 	} else {
-		res.status(403).send('User is already registered!Please Login');
+		res.status(403).send('User is already registered! Please Login');
 	}
 });
 //check users in json
