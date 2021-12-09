@@ -9,7 +9,7 @@ const {
   addNewUser,
   findUserByEmail,
   urlsForUser
-} = require ('helpers');
+} = require ('./helpers');
 //*********************** USE **************************//
 app.use(
   cookieSession({
@@ -17,7 +17,6 @@ app.use(
     keys: ['key1', 'key2'],
   })
 );
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
@@ -68,7 +67,7 @@ app.get('/urls', (req, res) => {
 		user: users[userId],
 		urls: userUrls
 	};
-	console.log('urls:', templateVars);
+	// console.log('urls:', templateVars);
 	res.render('urls_index', templateVars);
 });
 app.get('/urls/new', (req, res) => {
@@ -102,8 +101,8 @@ app.post('/urls/:shortURL', (req, res) => {
 	urlDatabase[shortURL].longURL = req.body.longURL;
 	res.redirect('/urls');
 });
-//********************* Post ****************************//
 
+//********************* Post ****************************//
 app.post('/urls', (req, res) => {
 	if (req.session.userId) {
 		const shortURL = generateRandomString();
@@ -131,7 +130,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
-	const user = findUserByEmail(email);
+	const user = findUserByEmail(email,users);
 	if(!email || !password){
     return res.status(400).send('email and password cannot be blank');
   }
@@ -161,11 +160,11 @@ app.post('/register', (req, res) => {
 	// const name = req.body.name;
 	const email = req.body.email;
 	const password = req.body.password;
-	const user = findUserByEmail(email);
+	const user = findUserByEmail(email,users);
 	if (!user) {
 		bcrypt.genSalt(10, (err, salt) => {
 			bcrypt.hash(password, salt, (err, hash) => {
-				const userId = addNewUser(email, hash);
+				const userId = addNewUser(email, hash, users);
 				res.cookie('user_id', userId);
 				res.redirect('/');
 			});

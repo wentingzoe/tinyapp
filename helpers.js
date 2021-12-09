@@ -4,20 +4,20 @@ const generateRandomString = function() {
 	const shortURL = Math.random().toString(36).substring(2, 8);
 	return shortURL;
 };
-const addNewUser = (email, password) => {
+const addNewUser = (email, password,db) => {
 	const userId = Math.random().toString(36).substring(2, 8);
 	const newUser = {
 		id: userId,
 		email,
 		password
 	};
-	users[userId] = newUser;
+	db[userId] = newUser;
 	return userId;
 };
-const findUserByEmail = (email) => {
-	for (let userId in users) {
-		if (users[userId].email === email) {
-			return users[userId];
+const findUserByEmail = (email,db) => {
+	for (let userId in db) {
+		if (db[userId].email === email) {
+			return db[userId];
 		}
 	}
 	return false;
