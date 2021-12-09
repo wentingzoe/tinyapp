@@ -17,7 +17,7 @@
          </div>
         <% } else {%> 
             <form class="form-inline" action="/logout" method="POST"> 
-              <a class="nav-item nav-link" href=""> ID: <%= user %> </a>
+              <a class="nav-item nav-link" href=""> Welcome: <%= user.email %> </a>
               <button type="submit" class="btn btn-secondary" value="submit">Logout</button>   
             </form>
         <% } %>
