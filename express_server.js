@@ -1,21 +1,16 @@
 const express = require('express');
 const app = express();
-const PORT = 8080; 
+const PORT = 8080;
 const bodyParser = require('body-parser');
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
-const {
-  generateRandomString,
-  addNewUser,
-  findUserByEmail,
-  urlsForUser
-} = require ('./helpers');
+const { generateRandomString, addNewUser, findUserByEmail, urlsForUser } = require('./helpers');
 //*********************** USE **************************//
 app.use(
-  cookieSession({
-    name: 'session',
-    keys: ['key1', 'key2'],
-  })
+	cookieSession({
+		name: 'session',
+		keys: [ 'key1', 'key2' ]
+	})
 );
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
@@ -37,39 +32,39 @@ const users = {
 	aJ48lW: {
 		id: 'aJ48lW',
 		email: 'really.kent.cook@kitchen.com',
-		password: bcrypt.hashSync('1234',10)
+		password: bcrypt.hashSync('1234', 10)
 	},
 	'1dc937ec': {
 		id: '1dc937ec',
 		email: 'good.philamignon@steak.com',
-		password: bcrypt.hashSync('meatlover',10)
+		password: bcrypt.hashSync('meatlover', 10)
 	}
 };
 
 //********************** Get ***************************//
 
 app.get('/', (req, res) => {
-	res.redirect('/login');
-});
-app.get('/urls.json', (req, res) => {
-	res.json(urlDatabase);
-});
-
-app.get('/hello', (req, res) => {
-	const templateVars = { greeting: 'Hello World!' };
-	res.render('hello_world', templateVars);
+	if (req.session.userId) {
+		res.redirect('/urls');
+	} else {
+		res.redirect('/login');
+	}
 });
 
 app.get('/urls', (req, res) => {
+	if (req.session.userId) {
 	const userId = req.session.userId;
 	const userUrls = urlsForUser(userId, urlDatabase);
 	const templateVars = {
 		user: users[userId],
 		urls: userUrls
 	};
-	// console.log('urls:', templateVars);
 	res.render('urls_index', templateVars);
+	} else {
+		res.redirect('/login');
+	}	
 });
+
 app.get('/urls/new', (req, res) => {
 	const userId = req.session.userId;
 	if (!userId) {
@@ -83,12 +78,16 @@ app.get('/urls/new', (req, res) => {
 });
 //*************************Short Url & Edit *************************** */
 app.get('/urls/:shortURL', (req, res) => {
+	if (req.session.userId) {
 	const templateVars = {
 		shortURL: req.params.shortURL,
 		longURL: urlDatabase[req.params.shortURL]['longURL'],
 		user: users[req.session.userId]
 	};
 	res.render('urls_show', templateVars);
+	} else {
+		return res.status(401).send('To check the shortURL. Please login');
+	}
 });
 app.get('/u/:shortURL', (req, res) => {
 	const shortURL = req.params.shortURL;
@@ -97,9 +96,13 @@ app.get('/u/:shortURL', (req, res) => {
 });
 // Edit LongURL
 app.post('/urls/:shortURL', (req, res) => {
-	const shortURL = req.params.shortURL;
-	urlDatabase[shortURL].longURL = req.body.longURL;
-	res.redirect('/urls');
+	if (req.session.userId) {
+		const shortURL = req.params.shortURL;
+		urlDatabase[shortURL].longURL = req.body.longURL;
+		res.redirect('/urls');
+	}else {
+		return res.status(401).send('To check the shortURL. Please login');
+	}
 });
 
 //********************* Post ****************************//
@@ -130,21 +133,20 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
-	const user = findUserByEmail(email,users);
-	if(!email || !password){
-    return res.status(400).send('email and password cannot be blank');
-  }
-  if (!user) {
-    return res.status(400).send('no user with that email found')
-  }
+	const user = findUserByEmail(email, users);
+	if (!email || !password) {
+		return res.status(400).send('email and password cannot be blank');
+	}
+	if (!user) {
+		return res.status(400).send('no user with that email found');
+	}
 	bcrypt.compare(password, user.password, (err, success) => {
-    if(!success){
-      return res.status(400).send('password does not match')
-    }
-    req.session.userId = user.id;
-		res.redirect('/urls');
-  })
-
+		if (!success) {
+			return res.status(400).send('password does not match');
+		}
+		req.session.userId = user.id;
+		res.redirect('/');
+	});
 });
 //********************* Register **************************//
 app.get('/register', (req, res) => {
@@ -160,7 +162,7 @@ app.post('/register', (req, res) => {
 	// const name = req.body.name;
 	const email = req.body.email;
 	const password = req.body.password;
-	const user = findUserByEmail(email,users);
+	const user = findUserByEmail(email, users);
 	if (!user) {
 		bcrypt.genSalt(10, (err, salt) => {
 			bcrypt.hash(password, salt, (err, hash) => {
@@ -169,7 +171,6 @@ app.post('/register', (req, res) => {
 				res.redirect('/');
 			});
 		});
-
 	} else {
 		res.status(403).send('User is already registered! Please Login');
 	}
