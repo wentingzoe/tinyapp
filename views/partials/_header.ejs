@@ -5,11 +5,12 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
+      <div class="navbar-nav ">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a> 
-      <div style ="margin-left: 600px;">
-        <% if(!user) { %>
+      <div style ="margin-left: 500px;">
+        <% if(!user){ %>
+          
           <div class="d-flex">
             <a class="nav-item nav-link" href="/login"> Login</a> 
             <a class="nav-item nav-link" href="/register"> Register </a>   
@@ -19,7 +20,6 @@
               <a class="nav-item nav-link" href=""> ID: <%= user %> </a>
               <button type="submit" class="btn btn-secondary" value="submit">Logout</button>   
             </form>
-          <!-- <% console.log("logout issue") %> -->
         <% } %>
       </div>
       </div>
