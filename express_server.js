@@ -32,41 +32,41 @@ const addNewUser = (email, password) => {
 	return userId;
 };
 const findUserByEmail = (email) => {
-  for (let userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
-    }
-  }
+	for (let userId in users) {
+		if (users[userId].email === email) {
+			return users[userId];
+		}
+	}
 	return false;
 };
 const authenticateUser = (email, password) => {
-  const user = findUserByEmail(email);
-  if (user && user.password === password) {
-    return user.id;
-  }
-  return false;
+	const user = findUserByEmail(email);
+	if (user && user.password === password) {
+		return user.id;
+	}
+	return false;
 };
 function urlsForUser(id, urlDatabase) {
-	let result = {}
+	let result = {};
 	for (key in urlDatabase) {
-		 if (urlDatabase[key].userId === id) {
-			 result[key] = urlDatabase[key]
-		}   
+		if (urlDatabase[key].userId === id) {
+			result[key] = urlDatabase[key];
+		}
 	}
-	console.log('user URL:',result);
+	console.log('user URL:', result);
 	return result;
 }
 //************************** Database ***********************//
 //url database
 const urlDatabase = {
 	b6UTxQ: {
-		longURL: "https://www.tsn.ca",
-		userId: "aJ48lW"
-},
-i3BoGr: {
-		longURL: "https://www.google.ca",
-		userId: "aJ48lW"
-}
+		longURL: 'https://www.tsn.ca',
+		userId: 'aJ48lW'
+	},
+	i3BoGr: {
+		longURL: 'https://www.google.ca',
+		userId: 'aJ48lW'
+	}
 };
 //user database
 const users = {
@@ -85,7 +85,7 @@ const users = {
 //********************** Get ***************************//
 
 app.get('/', (req, res) => {
-  res.redirect('/register');
+	res.redirect('/register');
 });
 app.get('/urls.json', (req, res) => {
 	res.json(urlDatabase);
@@ -97,27 +97,25 @@ app.get('/hello', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-
 	const userId = req.cookies['user_id'];
 	const userUrls = urlsForUser(userId, urlDatabase);
 	const templateVars = {
-			user: userId,
-			urls: userUrls,
-		};
-		console.log('urls:',templateVars)
+		user: userId,
+		urls: userUrls
+	};
+	console.log('urls:', templateVars);
 	res.render('urls_index', templateVars);
-
 });
 app.get('/urls/new', (req, res) => {
 	const userId = req.cookies['user_id'];
-	if (!userId){
-		res.redirect('/login')
+	if (!userId) {
+		res.redirect('/login');
 	} else {
 		const templateVars = {
 			user: users[userId]
 		};
 		res.render('urls_new', templateVars);
-	}	
+	}
 });
 //*************************Short Url & Edit *************************** */
 app.get('/urls/:shortURL', (req, res) => {
@@ -133,43 +131,43 @@ app.get('/u/:shortURL', (req, res) => {
 	const longURL = urlDatabase[shortURL]['longURL'];
 	res.redirect(longURL);
 });
-app.post('/urls/:id', (req, res) => {
-	const shortURL = req.params.id;
+// Edit LongURL
+app.post('/urls/:shortURL', (req, res) => {
+	const shortURL = req.params.shortURL;
 	urlDatabase[shortURL].longURL = req.body.longURL;
 	res.redirect('/urls');
 });
 //********************* Post ****************************//
 
 app.post('/urls', (req, res) => {
-	if(req.cookies['user_id']){
+	if (req.cookies['user_id']) {
 		const shortURL = generateRandomString();
 		const longURL = req.body.longURL;
 		urlDatabase[shortURL] = {
-			longURL:longURL,
-			userId:req.cookies['user_id']
-		}
+			longURL: longURL,
+			userId: req.cookies['user_id']
+		};
 		res.redirect(`/urls/${shortURL}`);
 	} else {
 		res.redirect(403, '/urls');
 	}
 });
-x
+
 //********************* Login ****************************//
 
-app.get('/login', (req,res)=>{
+app.get('/login', (req, res) => {
 	let userId = req.cookies['user_id'];
-  let templateVars = {
-    user: userId
-
-  };
-  res.render('urls_login', templateVars);
+	let templateVars = {
+		user: userId
+	};
+	res.render('urls_login', templateVars);
 });
 
 app.post('/login', (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	const checkUserId = authenticateUser(email, password);
-	if (checkUserId){
+	if (checkUserId) {
 		res.cookie('user_id', checkUserId);
 		res.redirect('/urls');
 	} else {
@@ -179,11 +177,11 @@ app.post('/login', (req, res) => {
 //********************* Register **************************//
 app.get('/register', (req, res) => {
 	let userId = req.cookies['user_id'];
-  let templateVars = {
-    urls: urlDatabase,
-    user: userId
-  };
-  res.render('urls_register', templateVars);
+	let templateVars = {
+		urls: urlDatabase,
+		user: userId
+	};
+	res.render('urls_register', templateVars);
 });
 
 app.post('/register', (req, res) => {
@@ -191,7 +189,7 @@ app.post('/register', (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	const user = findUserByEmail(email);
-	if(!user){
+	if (!user) {
 		const userId = addNewUser(email, password);
 		res.cookie('user_id', userId);
 		res.redirect('/urls');
