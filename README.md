@@ -4,20 +4,20 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-Spet 1 : Register
+###Step 1 : Register
+![alt text](https://github.com/wentingzoe/tinyapp/blob/master/docs/TinyApp%20Register.png?raw=true)
 
+###Step  2 : Login
+![alt text](https://github.com/wentingzoe/tinyapp/blob/master/docs/TinyApp%20Login.png)
 
-Spet 2 : Login
+###Step  3 : User's Homepage 
+![alt text](https://github.com/wentingzoe/tinyapp/blob/master/docs/TinyApp%20Home.png)
 
+###Step  4 : Create New URL
+![alt text](https://github.com/wentingzoe/tinyapp/blob/master/docs/TinyApp%20Edit.png)
 
-Spet 3 : User's Homepage 
-
-
-Spet 4 : Create New URL
-
-
-Spet 5 : Edit URL
-
+###Step  5 : Edit URL
+![alt text](https://github.com/wentingzoe/tinyapp/blob/master/docs/TinyApp%20Register.png)
 
 
 ## Dependencies
