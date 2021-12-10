@@ -76,7 +76,7 @@ app.get('/urls/new', (req, res) => {
 		res.render('urls_new', templateVars);
 	}
 });
-//*************************Short Url & Edit *************************** */
+//********************* Short Url & Edit *************************** */
 app.get('/urls/:shortURL', (req, res) => {
 	if (req.session.userId) {
 	const templateVars = {
@@ -148,6 +148,7 @@ app.post('/login', (req, res) => {
 		res.redirect('/');
 	});
 });
+
 //********************* Register **************************//
 app.get('/register', (req, res) => {
 	let userId = req.session.userId;
