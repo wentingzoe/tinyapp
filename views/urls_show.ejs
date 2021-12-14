@@ -15,18 +15,19 @@
       <div class="card-body">
         <h5 class="card-title"> TinyURL for: <%= longURL %>
         </h5>
-        <p class="card-text"> Short URL: <a href="<%= longURL %>">
+        <p class="card-text"> Short URL: <a href="/u/<%= shortURL %>">
             <%= shortURL %>
           </a></p>
         <p class="card-text">Created on: <%= created %>
         </p>
+        <p class="text-center">Visited: <%= visits %> times by <%= visitors %> unique visitors!</p>
       </div>
 
       <div class="card-footer text-muted text-center">
         <!-- Button to update the long URL link -->
         <h3 class="card-title"> Update </h3>
-        <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
-          <input type="hidden" name="_method" value="POST">
+        <form class="form-inline" action="/urls/<%= shortURL %>?_method=PUT" method="POST">
+          <input type="hidden" name="_method" value="PUT">
           <div class="form-group mb3" style="width: 350px; margin:auto">
             <label class="card-text" for="longURL">New URL:</label>
             <input class="form-control" type="text" name="longURL" placeholder="http://" style="width:  200px">
@@ -34,7 +35,22 @@
           </div>
         </form>
       </div>
-
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Random Visitor ID</th>
+            <th scope="col">Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let randomVisitor in allVisits) { %>
+          <tr>
+              <td style="text-align: center;"><%= randomVisitor %></td>
+              <td style="text-align: center;"><%= allVisits[randomVisitor] %></td>
+          </tr>
+            <% } %>
+        </tbody>
+      </table>
     </div>
 
     <!-- Bootstrap JS -->

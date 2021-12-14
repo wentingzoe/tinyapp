@@ -23,6 +23,8 @@
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
             <th scope="col">Created on</th>
+            <th scope="col">Total Visits</th>
+            <th scope="col">Unique Visits</th>
           </tr>
         </thead>
         <tbody>
@@ -33,7 +35,7 @@
                 <%= url %>
               </td>
               <td>
-                <%= urls[url]['longURL'] %>
+                <%= urls[url].longURL %>
               </td>
               <td>
                 <form method="GET" action="/urls/<%= url %>">
@@ -48,6 +50,8 @@
                 </form>
               </td>
               <td><%= stretchInfo[url]['created'] %></td>
+              <td><%= stretchInfo[url]['visits'] %></td>
+              <td><%= stretchInfo[url]['visitors'].length %></td>
             </tr>
             <% } %>
         </tbody>

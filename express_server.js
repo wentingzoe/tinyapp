@@ -21,7 +21,7 @@ app.use(
 // use body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// override with POST having ?_method=DELETE or ?_method=PUT
+// override with POST 
 app.use(methodOverride('_method'));
 
 app.set('view engine', 'ejs');
@@ -38,11 +38,17 @@ const urlDatabase = {
 		longURL: 'https://www.tsn.ca',
 		userId: 'aJ48lW',
 		created: new Date(),
+		visits: 0,
+		visitors: [],
+		allVisits: {}
 	},
 	i3BoGr: {
 		longURL: 'https://www.google.ca',
 		userId: 'aJ48lW',
 		created: new Date(),
+		visits: 0,
+		visitors: [],
+		allVisits: {}
 	}
 };
 
@@ -76,8 +82,10 @@ app.get('/urls', (req, res) => {
 	const userId = req.session.userId;
 	const userUrls = urlsForUser(userId, urlDatabase);
 	const stretchInfo = dateVisitInfoForUser(userUrls, urlDatabase);
+	// console.log("app.get /urls:",userUrls);
 	if (!userId) {
-		return res.status(401).send("Please <a href='/login'> login</a> first");
+		const templateVars = { user: users[userId] };
+		res.render('urls_redirect.ejs', templateVars);
 	} else {
 		const templateVars = {
 			user: users[userId],
@@ -128,35 +136,55 @@ app.get('/urls/new', (req, res) => {
 
 //shortURL
 app.get('/urls/:shortURL', (req, res) => {
-	const userId = req.session.userId;	
-  const shortURL = req.params.shortURL;
-  
-  if (userId) { // Checks login
-    if (urlDatabase[shortURL]) { // Checks if short URL exists
-      const idUrls = urlsForUser(userId,urlDatabase);
-      if (idUrls[shortURL]) { // Cheks if short url belongs to this user
-        const templateVars = {
-          shortURL,
-          longURL : urlDatabase[shortURL]['longURL'],
-          user: users[userId],
-          created: urlDatabase[shortURL]['created'],
-        };
-				console.log("get surl:", templateVars)
-        res.render('urls_show', templateVars);
-      } else {
-        res.status(401).send("Please <a href='/login'> login</a> first");
-      }
-    } else {
-      res.send(`Error: This short URL does not exist.`);
-    }
-  } 
+	const userId = req.session.userId;
+	const shortURL = req.params.shortURL;
+
+	if (userId) {
+		// Checks login
+		if (urlDatabase[shortURL]) {
+			// Checks if short URL exists
+			const idUrls = urlsForUser(userId, urlDatabase);
+			if (idUrls[shortURL]) {
+				// Cheks if short url belongs to this user
+				const templateVars = {
+					shortURL,
+					longURL: urlDatabase[shortURL]['longURL'],
+					user: users[userId],
+					created: urlDatabase[shortURL]['created'],
+					visits: urlDatabase[shortURL]['visits'],
+					visitors: urlDatabase[shortURL]['visitors'].length,
+					allVisits: urlDatabase[shortURL]['allVisits']
+				};
+
+				res.render('urls_show', templateVars);
+			} else {
+				res.status(401).send("Please <a href='/login'> login</a> first");
+			}
+		} else {
+			res.send(`Error: This short URL does not exist.`);
+		}
+	} else {
+		const templateVars = { user: users[userId] };
+		res.render('urls_redirect.ejs', templateVars);
+	}
 });
 
 // Redirects short URL clicks to the long links
 app.get('/u/:shortURL', (req, res) => {
 	const shortURL = req.params.shortURL;
+
 	if (urlDatabase[shortURL]) {
-		const longURL = urlDatabase[shortURL].longURL;
+	
+		urlDatabase[shortURL]['visits'] += 1; 
+		const longURL = urlDatabase[shortURL]['longURL'];
+		const visitor = req.session.userId; 
+		if (visitor === undefined || !urlDatabase[shortURL]['visitors'].includes(visitor)) {
+			urlDatabase[shortURL]['visitors'].push(visitor);
+		}
+		
+		const randomVisitorId = generateRandomString();
+		const timeVisit = new Date();
+		urlDatabase[shortURL]['allVisits'][randomVisitorId] = timeVisit;
 		res.redirect(longURL);
 	} else {
 		res.send(`Error: This short URL does not exist.`);
@@ -168,18 +196,24 @@ app.get('/u/:shortURL', (req, res) => {
 //create short URL
 app.post('/urls', (req, res) => {
 	const userId = req.session.userId;
-	const shortURL = generateRandomString();
 	const longURL = req.body.longURL;
 
-	if (!userId) {
-		return res.status(401).send("Please login first");
+	if (userId) {
+		const shortURL = generateRandomString();
+
+		urlDatabase[shortURL] = {
+			userId,
+			longURL,
+			created: new Date(),
+			visits: 0,
+			visitors: [],
+			allVisits: {}
+		};
+		res.redirect(`/urls/${shortURL}`);
+	} else {
+		const templateVars = { user: users[userId] };
+		res.render('urls_redirect.ejs', templateVars);
 	}
-	urlDatabase[shortURL] = {
-		userId,
-		longURL,
-		created: new Date(),
-	};
-	res.redirect(`/urls/${shortURL}`);
 });
 
 // login info
@@ -234,39 +268,50 @@ app.post('/logout', (req, res) => {
 	res.redirect('/urls');
 });
 
-// Edit URL
-app.post('/urls/:shortURL', (req, res) => {
-	const userId = req.session.userId;
-  const shortURL = req.params.shortURL;
-  if (userId) { // Checks login
-    if (urlDatabase[shortURL]) { 
-      const idUrls = urlsForUser(userId,urlDatabase); 
-      if (idUrls[shortURL]) { 
-        urlDatabase[shortURL].longURL = req.body.longURL;
-        res.redirect('/urls');
-      } else { 
-        res.send('You are not authorized to update or delete this URL.');
-      }
-    } else { 
-      res.send(`Error: This short URL does not exist.`);
-    }
-  }
-});
-
 //Delete
 app.post('/urls/:shortURL/delete', (req, res) => {
 	const userId = req.session.userId;
 	const shortURL = req.params.shortURL;
 
-	if (!userId) {
-		return res.status(401).send('Please login first');
-	} else if (!Object.keys(urlDatabase).includes(shortURL)) {
-		return res.status(401).send('Error, can not find this shortURL');
-	} else if (userId !== urlDatabase[shortURL].userId) {
-		return res.status(401).send('Error, can not access this shortURL');
+	if (userId) {
+		
+		if (urlDatabase[shortURL]) {
+			const idUrls = urlsForUser(userId, urlDatabase);
+			if (idUrls[shortURL]) {
+				delete urlDatabase[shortURL];
+				res.redirect('/urls');
+			} else {
+				res.send('You are not authorized to update or delete this URL.');
+			}
+		} else {
+			res.send(`Error: This short URL does not exist.`);
+		}
+	} else {
+		const templateVars = { user: users[userId] };
+		res.render('urls_redirect.ejs', templateVars);
 	}
-	delete urlDatabase[shortURL];
-	res.redirect(`/urls`);
 });
 
+//********************* PUT ****************************//
+// Edit URL
+app.put('/urls/:shortURL', (req, res) => {
+	const userId = req.session.userId;
+	const shortURL = req.params.shortURL;
+	if (userId) {
+		if (urlDatabase[shortURL]) {
+			const idUrls = urlsForUser(userId, urlDatabase);
+			if (idUrls[shortURL]) {
+				urlDatabase[shortURL].longURL = req.body.longURL;
+				res.redirect('/urls');
+			} else {
+				res.send('You are not authorized to update or delete this URL.');
+			}
+		} else {
+			res.send(`Error: This short URL does not exist.`);
+		}
+	} else { 
+    const templateVars = { user: users[userId] };
+    res.render('urls_redirect.ejs', templateVars);
+  }
+});
 

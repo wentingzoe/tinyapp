@@ -31,7 +31,6 @@ function urlsForUser(id, urlDatabase) {
 			result[key] = urlDatabase[key];
 		}
 	}
-	console.log('user URL:', result);
 	return result;
 }
 
