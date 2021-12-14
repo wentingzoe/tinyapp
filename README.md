@@ -1,7 +1,7 @@
 # TinyApp Project
 
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
-![Alt Text]<img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" width="40" height="40" />
+<iframe src="https://giphy.com/embed/FRQF9ResnCsjS" width="480" height="476" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/cat-animal-kitten-FRQF9ResnCsjS">via GIPHY</a></p>
 
 ## Final Product
 
