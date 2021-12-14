@@ -14,6 +14,7 @@ const addNewUser = (email, password,db) => {
 	db[userId] = newUser;
 	return userId;
 };
+
 const findUserByEmail = (email,db) => {
 	for (const userId in db) {
 		if (db[userId].email === email) {
@@ -22,6 +23,7 @@ const findUserByEmail = (email,db) => {
 	}
 	return false;
 };
+
 function urlsForUser(id, urlDatabase) {
 	let result = {};
 	for (const key in urlDatabase) {
@@ -32,9 +34,30 @@ function urlsForUser(id, urlDatabase) {
 	console.log('user URL:', result);
 	return result;
 }
+
+// Returns creation date, total visits and unique visitors for userID
+const dateVisitInfoForUser = function(filteredUrlObject, urlDB) {
+  const output = {};
+
+  for (let key in filteredUrlObject) {
+    for (let shortURL in urlDB) {
+      if (key === shortURL) {
+        output[key] = {
+          created: urlDB[key]['created'],
+          visits: urlDB[key]['visits'],
+          visitors: urlDB[key]['visitors']
+        };
+      }
+    }
+  }
+
+  return output;
+};
+
 module.exports = {
   generateRandomString,
   addNewUser,
   findUserByEmail,
-  urlsForUser
+  urlsForUser,
+	dateVisitInfoForUser 
 };
