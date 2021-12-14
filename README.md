@@ -6,22 +6,22 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 
 ### Register
-![register]
+![register](https://github.com/wentingzoe/tinyapp/blob/master/docs/register.png)
 
 ### Login
-![login]
+![login](https://github.com/wentingzoe/tinyapp/blob/master/docs/login.png)
 
 ### User's Homepage 
-![homepage]
+![homepage](https://github.com/wentingzoe/tinyapp/blob/master/docs/homepage.png)
 
 ### Create New URL
-![createURL]
+![createURL](https://github.com/wentingzoe/tinyapp/blob/master/docs/createURL.png)
 
 ### Edit URL
-![shortURL]
+![shortURL](https://github.com/wentingzoe/tinyapp/blob/master/docs/shortURL.png)
 
 ### Redirect
-![redirect]
+![redirect](https://github.com/wentingzoe/tinyapp/blob/master/docs/redirectpage.png)
 
 ## Dependencies
 
